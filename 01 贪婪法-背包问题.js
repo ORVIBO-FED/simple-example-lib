@@ -23,7 +23,6 @@ class Knapsack {
   constructor() {
     this.list = [];
     this.weightLeft = 150;
-    this.isFull = false;
     this.totalPrice = 0;
     // 一批物品的重量和价值
     const wi = [35, 30, 60, 50, 40, 10, 25];
@@ -43,36 +42,59 @@ console.log("原始背包", new Knapsack());
 (function packByDensity() {
   const knapsack = new Knapsack();
 
+  //修饰下
+  function testalble(target) {
+    target.isAlmostFull = false; // 几乎填满
+    target.isFull = false; // 填满
+  }
+
+  testalble(knapsack);
+
+
   // 算密度
   knapsack.list.forEach(item => {
     item.density = Math.round(item.price / item.weight * 100) / 100; // 保留小数两位
   });
+  console.log("背包1", knapsack);
 
   // 找到剩余的物品中，密度最大的物品
   function getMaxDensityItem() {
     let indexOfMax = 0;
     knapsack.list.forEach((item, index) => {
       const max = knapsack.list[indexOfMax].density;
-      if (item.density > max) {
+      if (item.density >= max) {
         indexOfMax = index;
       }
     });
     const maxItem = knapsack.list[indexOfMax];
     // 还放得下
-    if (knapsack.weightLeft > maxItem.weight) {
+    if (knapsack.weightLeft >= maxItem.weight) {
       knapsack.weightLeft -= maxItem.weight;
       knapsack.totalPrice += maxItem.price;
       knapsack.list.splice(indexOfMax, 1); // 删除放入了的物品
     }
     // 饱满
     else {
-      knapsack.isFull = true;
+      knapsack.isAlmostFull = true;
     }
   }
 
   // 填装
-  while (!knapsack.isFull) {
+  while (!knapsack.isAlmostFull) {
     getMaxDensityItem();
   }
-  console.log("背包1处理后", knapsack);
+
+  // 剩余的最后，找到「能放入的」的里面的价值最大，来补充最后剩余的空间
+  let max = 0;
+  let indexOfMax = 0;
+  knapsack.list.forEach((item, index) => {
+    if (item.weight < knapsack.weightLeft && item.price > max) {
+      max = item.price;
+      indexOfMax = index;
+    }
+  });
+  knapsack.weightLeft -= knapsack.list[indexOfMax].weight;
+  knapsack.totalPrice += knapsack.list[indexOfMax].price;
+
+  console.log("密度计算法算得", knapsack);
 })();
