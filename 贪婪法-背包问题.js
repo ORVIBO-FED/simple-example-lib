@@ -42,7 +42,6 @@ console.log("原始背包", new Knapsack());
 (function packByDensity() {
   const knapsack = new Knapsack();
 
-  //修饰下
   function testalble(target) {
     target.isAlmostFull = false; // 几乎填满
     target.isFull = false; // 填满
