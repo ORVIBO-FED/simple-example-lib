@@ -15,10 +15,11 @@
 
 <body>
 <div class="content">
-    <input id="view-1" value="" placeholder="输入"/>
+    <input id="view-1" value="" placeholder="输入" type="text"/>
     <div id="model-1">数据</div>
     <input id="view-2" value="" placeholder="输入"/>
     <div id="model-2">数据</div>
+    <button id="btn">改变输入框2</button>
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
@@ -35,7 +36,7 @@
       const model = `#model-${id}`;
       const message = `${id}:change`;
 
-      $(view).change(e => {
+      $(view).on('input', e => {
         const val = e.target.value;
         pubSub.trigger(message, [model, val]);
       });
@@ -61,8 +62,10 @@
     }
 
     const user = new User(2);
-    user.set("name", "Controller设定值");
-    console.log(user);
+
+    $('#btn').click(e => {
+      user.set("name", "马兆铿");
+    });
   });
 </script>
 </body>
