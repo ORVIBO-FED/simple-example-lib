@@ -45,7 +45,9 @@ function numAndUnitModify(x) {
 
 // 校验
 list.forEach(item => {
-  var res = numAndUnitModify(item.value);
-  console.log(res);
+  item.trans = numAndUnitModify(item.value);
 });
+
+console.log(list);
+
 
