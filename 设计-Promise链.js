@@ -23,15 +23,16 @@ function fetch( str ) {
 const intercepter = {
   request: {
     success( config ) {
-     config && console.log("请求拦截，配置：", config);
-      config.requestIntercepter = true;
+      config && console.log("请求拦截，配置：", config);
       if ( config.trigErr === "requestIntercepter" ) {
-        return Promise.reject("请求拦截错误");
+        console.log("请求拦截报错");
+        return Promise.reject(config);
       }
       return config; // 作为下一个 Promise 的参数
     },
     fail( config ) {
-      return Promise.reject("请求拦截，错误：", config);
+      console.log("请求拦截到错误");
+      return Promise.reject(config);
     }
   },
   responce: {
@@ -40,7 +41,8 @@ const intercepter = {
       return res;
     },
     fail( err ) {
-      return Promise.reject("响应拦截，错误：", err);
+      console.log("响应拦截到错误");
+      return Promise.reject(err);
     }
   }
 };
@@ -57,18 +59,18 @@ function chainFetch( config ) {
   return chain;
 }
 
-chainFetch({ name: "请求链1：全部resolve" })
-  .then(res => {
-    console.log("请求链全部完成，结果：", res);
-  })
-  .catch(err => {
-    console.log("请求链出现错误，错误：", err);
-  });
-
-/*chainFetch({ name: "请求链2：请求拦截中错误", trigErr: "requestIntercepter" })
+/*chainFetch({ name: "请求链1：全部resolve" })
   .then(res => {
     console.log("请求链全部完成，结果：", res);
   })
   .catch(err => {
     console.log("请求链出现错误，错误：", err);
   });*/
+
+chainFetch({ name: "请求链2：请求拦截中错误", trigErr: "requestIntercepter" })
+  .then(res => {
+    console.log("请求链全部完成，结果：", res);
+  })
+  .catch(err => {
+    console.log("请求链出现错误，错误：", err);
+  });
