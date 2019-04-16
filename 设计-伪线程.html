@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>$Title$</title>
+</head>
+<body>
+<button style="position:fixed;top:50%;left: 50%;"
+        id="btn"
+>
+    点我 console.log("click")
+</button>
+<script>
+  var btn = document.getElementById( "btn" );
+  btn.onclick = function () {
+    console.log( "click" );
+  };
+
+  /**
+   * 线程构造
+   */
+  var Thread = function ( timeGap ) {
+    this.list = [];
+    this.timer = undefined;
+    /**
+     * 开始执行
+     */
+    this.start = function () {
+      const _this = this;
+      this.timer = setInterval( function () {
+        if ( _this.list.length ) {
+          var fn = _this.list.shift();
+          setTimeout( fn, 0 );
+        }
+      }, timeGap || 1 );
+    };
+    /**
+     * 停止执行
+     */
+    this.stop = function () {
+      clearInterval( this.timer );
+    };
+    /**
+     * 添加任务
+     * @param fn
+     */
+    this.addThread = function ( fn ) {
+      this.list.push( fn );
+    };
+  };
+
+  /**
+   * 需要执行的函数，测试十万到亿级别数量到数据
+   * @param num
+   */
+  var fn = function ( num ) {
+    const LIST_LENGTH = 500000;
+    var list = Array.from( { length: LIST_LENGTH } ).map( ( v, k ) => k );
+    console.log( num, "数据量：" + LIST_LENGTH );
+  }
+
+  // 执行
+  var thread = new Thread( 100 );
+  thread.start();
+  setTimeout( function () {
+    thread.stop();
+  }, 2000 );
+  for ( let i = 0; i < 1000000; i++ ) {
+    thread.addThread( function () {
+      fn( i );
+    } );
+  }
+</script>
+</body>
+</html>
