@@ -15,18 +15,16 @@ function Obj() {
 Obj.prototype.inPrototypeProp = "原型链上的";
 
 const obj = new Obj();
-// 可枚举：单个
+// 包含原型链上的
 const objinPrototypeProp = obj.inPrototypeProp; // '原型链上的'
-const objHasOwn = obj.hasOwnProperty("inPrototypeProp"); // false
-const objProIsEnu = obj.propertyIsEnumerable("inPrototypeProp"); // false
-console.log(objHasOwn, objProIsEnu)
-// 可枚举：数组
-const keyList = Object.keys(obj); // [ 'type', 'say' ]
-const valueList = Object.values(obj); // [ 99, { name: 'you', words: 'hello' } ]
-const entryList = Object.entries(obj); // [ [ 'type', 99 ], [ 'say', { name: 'you', words: 'hello' } ] ]
-// 可枚举 + 原型链
 for (let key in obj) {
   console.log("for的输出", key) // 'type', 'say', 'inPrototypeProp'
 }
-// 可枚举 + 不可枚举 - 原型链
+
+// 不包括原型链上的
+const objHasOwn = obj.hasOwnProperty("inPrototypeProp"); // false
+const keyList = Object.keys(obj); // [ 'type', 'say' ]
+const valueList = Object.values(obj); // [ 99, { name: 'you', words: 'hello' } ]
+const entryList = Object.entries(obj); // [ [ 'type', 99 ], [ 'say', { name: 'you', words: 'hello' } ] ]
+// 不包括原型链上的，且包括不可枚举的
 const objGetOwnProNames = Object.getOwnPropertyNames(obj); //[ 'type', 'say' ]
