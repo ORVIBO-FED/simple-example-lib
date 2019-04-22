@@ -28,13 +28,20 @@ Tiger.prototype.constructor = Tiger;
 Tiger.prototype.eat = function () {
   console.log(this.name + '吃人肉');
 };
-
+Tiger.prototype.kill = function () {
+  console.log(this.name + '杀人');
+};
+Cat.prototype.yell = function () {
+  console.log(this.name + "改口，汪汪叫");
+}
 var tiger1 = new Tiger("老虎", "黑丝");
 
 cat1.yell();
 cat1.eat();
+// cat1.kill(); // undefined
 tiger1.yell();
 tiger1.eat();
+tiger1.kill();
 console.log(tiger1.constructor)
 
 
