@@ -36,3 +36,40 @@ cat1.eat();
 tiger1.yell();
 tiger1.eat();
 console.log(tiger1.constructor)
+
+
+// ES6
+
+class Yog {
+  constructor(name) {
+    this.name = name;
+  }
+
+  kill() {
+    console.log(this.name + "杀死所有人");
+  }
+
+  yell() {
+    console.log("呼唤");
+  }
+}
+
+class SonOfYog extends Yog {
+  constructor(name) {
+    super(...arguments);
+  }
+
+  kill() {
+    console.log(this.name + "杀死一个村民");
+  }
+}
+
+const yog = new Yog("尤格索托斯");
+const sonOfYog = new SonOfYog("威利");
+
+yog.kill();
+sonOfYog.kill();
+sonOfYog.yell();
+
+
+
