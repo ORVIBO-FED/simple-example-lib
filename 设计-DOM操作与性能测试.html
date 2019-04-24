@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>$Title$</title>
+    <style>
+        body {
+            width: 1080px;
+            overflow: hidden;
+        }
+
+        div {
+            border: 1px solid #ccc;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+<button style="position:fixed;top:50%;left: 50%;"
+        id="btn"
+>
+    点我 console.log("click")
+</button>
+<script>
+  //代码：测试单次和多次操作DOM的「Chrome-preference 面板」的数据表现
+
+  var btn = document.getElementById("btn");
+  btn.onclick = function () {
+    console.log("click");
+  };
+
+
+  /**
+   * 需要执行的函数，测试十万到亿级别数量到数据
+   * @param num
+   */
+  var makeArr = function () {
+    const LIST_LENGTH = 5000;
+    console.log("数据量：" + LIST_LENGTH);
+    return Array.from({length: LIST_LENGTH}).map((v, k) => k);
+  }
+
+  const $body = document.getElementsByTagName("body")[0];
+
+  /**
+   * 多次操作DOM
+   */
+  function renderByStep() {
+    const arr = makeArr();
+    arr.forEach(item => {
+      setTimeout(function () {
+        const $div = document.createElement("div");
+        $div.innerHTML = item;
+        $body.appendChild($div);
+      });
+    })
+  }
+
+  /**
+   * 只操作一次DOM
+   */
+  function renderOnce() {
+    const arr = makeArr();
+    let str = '';
+    arr.forEach(item => {
+      str += `<div>${item}</div>`;
+    });
+    $body.innerHTML = str;
+  }
+
+  // 执行
+  //renderByStep();
+  renderOnce();
+</script>
+</body>
+</html>
