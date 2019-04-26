@@ -1,0 +1,139 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>flex布局</title>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+        }
+
+        .wrap {
+            width: 500px;
+            border: 1px solid #000;
+            margin: 20px;
+            padding: 0;
+            background: black;
+            color: whitesmoke;
+        }
+
+        p {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .flex {
+            display: flex;
+            width: 100%;
+            padding: 0;
+            margin: 5px 0 20px;
+        }
+
+        .flex li {
+            display: block;
+            list-style: none;
+            border: 2px solid yellow;
+            line-height: 20px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .justify li {
+            width: 40px;
+            flex: none;
+        }
+        .align-item li{
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrap">
+    <h2>container (width:500px)</h2>
+    <p>flex-direction: column-reverse</p>
+    <ul class="flex" style="flex-direction: column-reverse">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <p>flex-wrap: wrap</p>
+    <ul class="flex" style="flex-wrap: wrap">
+        <li style="flex-basis: 400px">1<br/>basis:400px</li>
+        <li style="flex-basis: 200px">2<br/>basis:200px</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <p>justify-content: space-evenly</p>
+    <ul class="flex justify" style="justify-content: space-evenly">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <p>align-items: center</p>
+    <ul class="flex" style="height: 50px;align-items: center">
+        <li style="height: 20px;">1</li>
+        <li style="height: 50px;">2</li>
+        <li style="height: 30px;">3</li>
+        <li style="height: 40px;">4</li>
+    </ul>
+    <p>align-items: center</p>
+    <ul class="flex align-item" style="height: 100px; flex-wrap: wrap;">
+        <li style="flex-basis: 400px;">1</li>
+        <li style="flex-basis: 200px;">2</li>
+        <li>3</li>
+        <li>4</li>
+        <li style="flex-basis: 300px;">5</li>
+    </ul>
+</div>
+<div class="wrap">
+    <h2>item (width:500px)</h2>
+    <p>default</p>
+    <ul class="flex">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <p>order</p>
+    <ul class="flex">
+        <li style="order:1">1<br/>order:1</li>
+        <li style="order:3">2<br/>order:3</li>
+        <li style="order:4">3<br/>order:4</li>
+        <li style="order:2">4<br/>order:2</li>
+    </ul>
+    <p>flex-grow</p>
+    <ul class="flex">
+        <li style="flex-grow: 2">1<br/>grow:2</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <p>flex-basis</p>
+    <ul class="flex">
+        <li>1</li>
+        <li>2</li>
+        <li style="width:100px;">3<br/>width:100px;</li>
+        <li style="flex-basis: 100px">4<br/>basis:100px</li>
+    </ul>
+    <p>flex-shrink (item's flex-basis: 200px;)</p>
+    <ul class="flex">
+        <li style="flex-basis: 200px;flex-shrink: 1">1<br/>shrink:1</li>
+        <li style="flex-basis: 200px;flex-shrink: 1">2<br/>shrink:1</li>
+        <li style="flex-basis: 200px;flex-shrink: 2">3<br/>shrink:2</li>
+        <li style="flex-basis: 200px;flex-shrink: 2">4<br/>shrink:2</li>
+    </ul>
+    <p>align-self</p>
+    <ul class="flex">
+        <li style="align-self: flex-start;height: 100px">1<br/>self:start<br/>height:100px</li>
+        <li style="align-self: flex-end">2<br/>self:end</li>
+        <li style="align-self: baseline">3<br/>self:baseline</li>
+        <li style="align-self: center">4<br/>self:center</li>
+        <li style="align-self: stretch">5<br/>self:stretch</li>
+    </ul>
+</div>
+</body>
+</html>
