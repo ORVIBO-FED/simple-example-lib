@@ -1,0 +1,25 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>网络请求</title>
+</head>
+
+<body>
+😂
+<script>
+  function getData() {
+    return new Promise((resolve, reject) => {
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("GET", "http://wthrcdn.etouch.cn/weather_mini?city=深圳");
+      xmlhttp.onreadystatechange = function () {
+        const {readyState, status} = xmlhttp;
+        if (readyState === 4 && status === 200) { // 成功完成
+          return resolve(xmlhttp.responseText)
+        }
+      }
+      xmlhttp.send();
+    })
+  }
+</script>
+</body>
+</html>

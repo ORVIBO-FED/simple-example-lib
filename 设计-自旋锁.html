@@ -1,0 +1,77 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>自旋锁</title>
+</head>
+
+<body>
+😂
+<script>
+  function getData() {
+    return new Promise((resolve, reject) => {
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("GET", "http://wthrcdn.etouch.cn/weather_mini?city=深圳");
+      xmlhttp.onreadystatechange = function () {
+        const {readyState, status} = xmlhttp;
+        if (readyState === 4 && status === 200) { // 成功完成
+          return resolve(xmlhttp.responseText)
+        }
+      }
+      xmlhttp.send();
+    })
+  }
+
+  function sleep() {
+    let i = 1000;
+    while (i--) ;
+  }
+
+  /**
+   * 连续任务式
+   * @returns {string}
+   */
+  function timerLock() {
+    let lock = true;
+
+    // 定时解锁
+    setTimeout(function () {
+      lock = false
+      console.log('unlock');
+    }, 5000)
+    const foo = () => setTimeout(function () {
+      console.log("执行");
+      sleep()
+      lock && foo()
+    })
+    foo();
+  }
+
+  //timerLock();
+
+  /**
+   * 递归：无法实现，不是一个线程上的东西
+   */
+  function loop() {
+    let weather = undefined;
+    //异步请求，
+    getData().then(res => {
+      weather = res;
+    });
+    (function iterator(i) {
+      if (i == 5000 || weather) {
+        //to do something.
+        console.log("递归结束", i, weather);
+        return;
+      }
+      sleep();
+      iterator(i + 1);
+    })(0);
+
+    return weather;
+  }
+
+  const res = loop();
+  console.log("请求结果" + res);
+</script>
+</body>
+</html>
