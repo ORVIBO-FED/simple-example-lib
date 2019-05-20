@@ -1,0 +1,59 @@
+<!DOCTYPE>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>多个网络请求</title>
+</head>
+
+<body>
+😂
+<script>
+  function write(str) {
+    const div = document.createElement("div");
+    div.innerText = str;
+    document.getElementsByTagName("body")[0].appendChild(div);
+  }
+
+  function getData(city) {
+    return new Promise((resolve, reject) => {
+      const xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("GET", `http://wthrcdn.etouch.cn/weather_mini?city=${city}`);
+      xmlhttp.onreadystatechange = function () {
+        const {readyState, status} = xmlhttp;
+        if (readyState === 4 && status === 200) { // 成功完成
+          return resolve(xmlhttp.responseText)
+        }
+      }
+      xmlhttp.send();
+    })
+  }
+
+  const arr = ["深圳", "上海", "广州"];
+
+  // async/await
+  async function asyncGet(arr) {
+    for (let i = 0; i < arr.length; i++) {
+      await getData(arr[i]).then(res => {
+        write(arr[i]);
+        write(JSON.stringify(res));
+      })
+    }
+  }
+
+  //const res = asyncGet(arr);
+
+  // 递归
+  function recursionGet(i) {
+    if (i < arr.length) {
+      getData(arr[i]).then(res => {
+        write(arr[i]);
+        write(JSON.stringify(res));
+        recursionGet(i += 1);
+      });
+    }
+  }
+
+  recursionGet(0);
+</script>
+</body>
+</html>
