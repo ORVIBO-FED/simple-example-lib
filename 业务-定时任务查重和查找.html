@@ -1,0 +1,137 @@
+<!DOCTYPE>
+<html>
+<head>
+    <title>创建日历</title>
+</head>
+
+<body>
+😂：console 查看
+<script src="https://unpkg.com/dayjs"></script>
+<script>
+  /**
+   * 生成未来8天的时间表
+   * @return {Array}
+   */
+  function createEightDayList() {
+    const current = dayjs();
+
+    // 建立未来8天的表
+    //过滤出时间有效的，即未来的
+    return Array.from({length: 8}).map((item, index) => {
+      const date = current.add(index, "day");
+      let day = date.day();
+      if (day === 0) day = 7;
+      return {
+        day,
+        date: date.format("YYYY/MM/DD"),
+        time: [],
+      };
+    })
+  }
+
+  /**
+   * 创建日历
+   * @param allWeekAndTime
+   * @param missionWeekAndTime
+   */
+  function checkIfTimeOverlap(allWeekAndTime, missionWeekAndTime) {
+    const current = dayjs();
+    const currentTimestamp = current.valueOf();
+    const currentDate = current.format("YYYY/MM/DD");
+    const currentTime = current.format("hh:mm:ss");
+
+    // 校验
+    if (allWeekAndTime.some(item => !Array.isArray(item.week) || !item.time.match(/^\d{2}\:\d{2}$/))) {
+      console.error("参数1数组错误，元素必须要有 week 和 time 两个属性，且必须是数组和时间字符串。参数1：\n", allWeekAndTime);
+      return;
+    }
+    if (typeof missionWeekAndTime !== "object" || !missionWeekAndTime.time || !missionWeekAndTime.week) {
+      console.error("参数2对象错误，对象必须要有 week 和 time 两个属性，且必须是数组和时间字符串。参数2：\n", missionWeekAndTime)
+    }
+
+    // 固定定时
+    const calender = createEightDayList();
+    calender.forEach(calenderItem => {
+      allWeekAndTime.forEach(arrItem => {
+        // 时间集中到day中
+        if (arrItem.week.find(item => item === calenderItem.day)) {
+          calenderItem.time.push(arrItem.time);
+        }
+      })
+    });
+
+    // 时间戳列表铺平
+    let allTimestampList = [];
+    calender.forEach(item => {
+      item.time.map(subItem => {
+        const dateAndTimeStr = `${item.date} ${subItem}`;
+        allTimestampList.push(dayjs(dateAndTimeStr).valueOf())
+      })
+    });
+    allTimestampList = Array.from(new Set(allTimestampList)); // 去重
+
+    // 单次定时
+    if (missionWeekAndTime.week.length === 0) {
+      // 如果时间过去了，那就是明天的任务，未过去就是今天的任务
+      const todayMissionTimestamp = dayjs(currentDate + " " + missionWeekAndTime.time).valueOf();
+      const tomorrowMissionTimestamp = dayjs(
+        current.add(1, "day").format("YYYY/MM/DD") + " " + missionWeekAndTime.time
+      ).valueOf();
+
+      const missionTimestamp = todayMissionTimestamp > currentTimestamp
+        ? todayMissionTimestamp
+        : tomorrowMissionTimestamp;
+      // 判断
+      return allTimestampList.indexOf(missionTimestamp) > -1;
+    }
+
+    // 多次任务
+    // 在日历中比较
+    return calender.some(item => {
+      if (missionWeekAndTime.week.find(day => day === item.day)) {
+        return item.time.indexOf(missionWeekAndTime.time) > -1;
+      }
+    });
+  }
+
+  // 测试
+  const allWeekAndTime = [
+    {week: [1, 2, 3, 4, 5, 6, 7], time: "00:00"},
+    {week: [1, 2, 3, 4, 5, 6, 7], time: "12:00"},
+    {week: [5, 6, 7], time: "12:00"},
+    {week: [1, 2, 3], time: "10:00"},
+    {week: [3, 4], time: "01:00"},
+    {week: [5, 6], time: "00:10"},
+    {week: [3], time: "00:01"},
+    {week: [7], time: "12:00"},
+    {week: [1], time: "00:01"},
+    {week: [], time: "11:11"},
+  ];
+
+  //const allWeekAndTime = [];
+
+  const missionList = [
+    // 单次
+    {time: "09:00", week: []},
+    {time: "10:00", week: []},
+    {time: "12:00", week: []},
+    {time: "12:01", week: []},
+    {time: "00:01", week: []},
+    {time: "01:00", week: []},
+    {time: "13:00", week: []},
+    // 多次
+    {time: "13:00", week: [1, 2, 3]},
+    {time: "12:00", week: [1, 2, 3]},
+    {time: "12:00", week: [6]},
+    {time: "12:01", week: [1, 2, 3]},
+    {time: "10:00", week: [3]},
+    {time: "10:00", week: [4]},
+  ];
+
+  missionList.forEach(item => {
+    const res = checkIfTimeOverlap(allWeekAndTime, item);
+    console.log(JSON.stringify(item), res);
+  })
+</script>
+</body>
+</html>
