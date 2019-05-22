@@ -1,11 +1,12 @@
 <!DOCTYPE>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>创建日历</title>
 </head>
 
 <body>
-😂：console 查看
+😂：请打开 console 查看
 <script src="https://unpkg.com/dayjs"></script>
 <script>
   /**
@@ -40,7 +41,7 @@
     const current = dayjs(timestamp);
     const currentTimestamp = current.valueOf();
     const currentDate = current.format("YYYY/MM/DD");
-    const currentTime = current.format("hh:mm:ss");
+    const tomorrowDate = current.add(1, "day").format("YYYY/MM/DD");
 
     // 复制一份操作
     let _missionWeekAndTime = JSON.parse(JSON.stringify(missionWeekAndTime));
@@ -50,11 +51,12 @@
     function changeWeekEnToNum(week) {
       const week_en = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"];
       if (week.length && !parseInt(week.join(""))) {
-        return week_en.map((item, index) => {
-          if (week.indexOf(item) > -1) {
-            return index + 1;
-          }
+        const week_num = [];
+        week_en.forEach((item, index) => {
+          if (week.indexOf(item) > -1)
+            week_num.push(index + 1);
         });
+        return week_num;
       }
       return week;
     }
@@ -70,13 +72,25 @@
       return false;
     }
     if (typeof _missionWeekAndTime !== "object" || !_missionWeekAndTime.time || !_missionWeekAndTime.week) {
-      console.error("参数2对象错误，对象必须要有 week 和 time 两个属性，且必须是数组和时间字符串。参数2：\n", _missionWeekAndTime)
+      console.error("参数2对象错误，对象必须要有 week 和 time 两个属性，且必须是数组和时间字符串。参数2：\n", _missionWeekAndTime);
+      return false;
     }
 
     // 所有任务生成日历
     const calender = createEightDayList(timestamp);
     calender.forEach(calenderItem => {
       _allWeekAndTime.forEach(arrItem => {
+        //单次的任务：先赋予其星期
+        if (!arrItem.week.length) {
+          const todayMissionTimestamp = dayjs(currentDate + " " + arrItem.time).valueOf();
+          const tomorrowMissionTimestamp = dayjs(tomorrowDate + " " + arrItem.time).valueOf();
+
+          const missionTimestamp = todayMissionTimestamp > currentTimestamp
+            ? todayMissionTimestamp
+            : tomorrowMissionTimestamp;
+
+          arrItem.week.push(dayjs(missionTimestamp).day());
+        }
         // 时间集中到day中
         if (arrItem.week.find(item => item === calenderItem.day)) {
           calenderItem.time.push(arrItem.time);
@@ -84,13 +98,11 @@
       })
     });
 
-    // 单次定时
+    // 单次定时找出其 week
     if (_missionWeekAndTime.week.length === 0) {
       // 如果时间过去了，那就是明天的任务，未过去就是今天的任务
       const todayMissionTimestamp = dayjs(currentDate + " " + _missionWeekAndTime.time).valueOf();
-      const tomorrowMissionTimestamp = dayjs(
-        current.add(1, "day").format("YYYY/MM/DD") + " " + _missionWeekAndTime.time
-      ).valueOf();
+      const tomorrowMissionTimestamp = dayjs(tomorrowDate + " " + _missionWeekAndTime.time).valueOf();
 
       const missionTimestamp = todayMissionTimestamp > currentTimestamp
         ? todayMissionTimestamp
@@ -107,8 +119,64 @@
     });
   }
 
-  // 测试
-  const TIME = "2019-05-21T11:00:20+08:00"; // 此时间为星期2
+  /**
+   * 找出最近要执行的任务的index
+   */
+  function findLatestMission(allWeekAndTime, timestamp = undefined) {
+    const current = dayjs(timestamp);
+
+    // 复制一份操作
+    let _allWeekAndTime = JSON.parse(JSON.stringify(allWeekAndTime));
+
+    // 如果星期是["Mon", "Tue"]这样的英文数组形式，则先转换成数字的数组
+    function changeWeekEnToNum(week) {
+      const week_en = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"];
+      if (week.length && !parseInt(week.join(""))) {
+        return week_en.map((item, index) => {
+          if (week.indexOf(item) > -1) {
+            return index + 1;
+          }
+        });
+      }
+      return week;
+    }
+
+    _allWeekAndTime.forEach(item => {
+      item.week = changeWeekEnToNum(item.week)
+    });
+
+    // 所有任务生成日历，并得到时间戳
+    const calender = createEightDayList(timestamp);
+    let calenderTimestampList = [];
+    calender.forEach(calenderItem => {
+      _allWeekAndTime.forEach(arrItem => {
+        // 时间集中到day中
+        if (arrItem.week.find(item => item === calenderItem.day)) {
+          calenderItem.time.push(arrItem.time);
+          calenderTimestampList.push(dayjs(`${calenderItem.date} ${arrItem.time}`).valueOf());
+        }
+      })
+    });
+
+    // 排序
+    calenderTimestampList = calenderTimestampList.sort();
+
+    // 找出时间戳最接近的时间戳
+    let latestMissionTimestamp = timestamp;
+    for (let i = 0; i < calenderTimestampList.length; i++) {
+      if (latestMissionTimestamp < calenderTimestampList[i]) {
+        latestMissionTimestamp = calenderTimestampList[i];
+        break;
+      }
+    }
+
+    return dayjs(latestMissionTimestamp).format("HH:mm:ss");
+  }
+
+  /* ----------------------------------------- 测试 ----------------------------------------- */
+
+  const TIME = "2019-05-21 11:00:20"; // 此时间为星期2
+  const timestamp = dayjs(TIME).valueOf();
   const allWeekAndTime = [
     {week: [1, 2, 3, 4, 5, 6, 7], time: "00:00"},
     {week: ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"], time: "12:00"},
@@ -133,6 +201,7 @@
     {time: "00:01", week: [], except: true},
     {time: "01:00", week: [], except: true},
     {time: "13:00", week: [], except: false},
+    {time: "11:11", week: [], except: true},
     // 多次
     {time: "13:00", week: [1, 2, 3], except: false},
     {time: "12:00", week: ["Mon", "Tue", "Wed"], except: true},
@@ -141,14 +210,34 @@
     {time: "10:00", week: [3], except: true},
     {time: "10:00", week: [4], except: false},
   ];
+
+  // 任务查重
+  console.log("检查任务是否在列表中：");
   console.log(`基于时间：${TIME}，期待必须全部为 true`);
   allWeekAndTime.forEach(item => {
     console.log("预设任务：", JSON.stringify(item));
   })
   missionList.forEach(item => {
-    const res = checkIfTimeOverlap(allWeekAndTime, item, dayjs(TIME).valueOf());
-    console.log(`时间：${item.time}，星期：${item.week}，是否存在于预设任务列表中：${res}，是否符合期待：${res === item.except}`);
-  })
+    const res = checkIfTimeOverlap(allWeekAndTime, item, timestamp);
+    console.log(`时间：${item.time}，星期：${item.week}，
+    是否存在于预设任务列表中：${res}，是否符合期待：${res === item.except ? "✔️" : "❌"}`);
+  });
+  console.log("");
+
+  // 最新任务
+  console.log("找到最近要运行的任务");
+  const timeList = [
+    "2019-05-21 11:00:20",
+    "2019-05-21 00:00:20",
+    "2019-05-21 00:12:20",
+    "2019-05-21 00:10:20",
+    "2019-05-22 00:10:20"
+  ];
+  console.log("时间列表", timeList);
+  timeList.forEach(item => {
+    const res = findLatestMission(allWeekAndTime, dayjs(item).valueOf());
+    console.log(res);
+  });
 </script>
 </body>
 </html>
