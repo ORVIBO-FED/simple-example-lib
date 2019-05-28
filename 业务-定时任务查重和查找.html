@@ -202,7 +202,7 @@
   /* ----------------------------------------- 测试 ----------------------------------------- */
 
   const TIME = "2019-05-21 11:00:20"; // 此时间为星期2
-  console.log(`测试时间：${TIME}，星期${dayjs(TIME).day()}`);
+  console.info(`测试时间：${TIME}，星期${dayjs(TIME).day()}`);
   const ts = dayjs(TIME).valueOf();
   const allMsList = [
     {week: [1, 2, 3, 4, 5, 6, 7], time: "00:00"},
@@ -219,7 +219,6 @@
   ];
   //const allMsList = [];
   console.log("全任务列表", allMsList);
-  console.log("");
 
   const missionList = [
     // 单次
@@ -242,16 +241,16 @@
 
 
   // 任务查重
-  console.log("检查任务是否在列表中：");
+  console.group("检查任务是否在列表中：");
   console.log(`基于时间：${TIME}，期待必须全部为 true`);
   missionList.forEach(item => {
     const res = checkIfTimeOverlap(allMsList, item, ts);
     console.log(`符合期待：${res === item.except ? "✔️" : "❌"}，在预设任务列表中：${res}，${JSON.stringify(item)}`);
   });
-  console.log("");
+  console.groupEnd();
 
   // 最新任务
-  console.log("找到最近要运行的任务");
+  console.group("找到最近要运行的任务");
   const timeList = [
     {time: "2019-05-21 11:00", except: "11:11"},
     {time: "2019-05-21 00:00:20", except: "10:00"},
@@ -266,6 +265,7 @@
     const {date, time} = mission;
     console.log(`符合期待：${time === item.except ? "✔️" : "❌"}，最近${item.time}的任务时间：${date + " " + time}`);
   });
+  console.groupEnd();
 </script>
 </body>
 </html>
