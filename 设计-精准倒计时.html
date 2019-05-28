@@ -1,0 +1,58 @@
+<!DOCTYPE>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>精准倒计时</title>
+</head>
+
+<body>
+😂：请打开 console 查看
+<script src="https://unpkg.com/dayjs"></script>
+<script>
+
+  /**
+   * 间隔计数，此方法行不通，误差会越来越大
+   */
+  function IntervalGap() {
+    const CHECK_TIME_GAP = 100;
+    let lastTs = 0;
+    let cnt = 0;
+    const startTs = dayjs().valueOf();
+    // 开始
+    setInterval(() => {
+      const curTs = dayjs().valueOf();
+      // 1s
+      if (curTs - lastTs >= 1000) {
+        lastTs = curTs;
+        cnt++;
+        console.log("偏差", (curTs - startTs) - (cnt * 1000)); // 从 -990 开始，到十分钟后 65809
+      }
+    }, CHECK_TIME_GAP);
+  }
+
+
+  /**
+   * 倒计时执行，执行良好，只需要考虑网络延迟即可
+   * @param ts
+   */
+  function timeCountdown(ts) {
+    const CHECK_TIME_GAP = 500;
+    const start = dayjs();
+    const match = ts.match(/^(\d+):(\d+):(\d+)$/);
+    const end = start.add(match[1], "hour").add(match[2], "minute").add(match[3], "second");
+    // 开始
+    setInterval(() => {
+      const curTs = dayjs().valueOf();
+      const diff = end.diff(curTs);
+      const hours = parseInt((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = parseInt((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = parseInt(diff % (1000 * 60) / 1000);
+      console.log(hours, minutes, seconds);
+    }, CHECK_TIME_GAP);
+  }
+
+  //IntervalGap();
+  timeCountdown("00:10:00"); // 10分钟
+</script>
+</body>
+</html>
