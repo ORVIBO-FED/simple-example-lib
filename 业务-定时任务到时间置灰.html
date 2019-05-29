@@ -1,0 +1,105 @@
+<!DOCTYPE>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>任务列表</title>
+    <style>
+        .time-status {
+            display: inline;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<ul class="time">
+</ul>
+<body>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://unpkg.com/dayjs"></script>
+<script>
+  const list = [];
+  const LIST_LEN = 800;
+
+  function createMissionList() {
+    const cur = dayjs();
+    // 生成任务
+    let last = cur;
+    for (let i = 0; i < LIST_LEN; i++) {
+      last = last.add(1, "minute");
+      const item = {
+        index: i,
+        time: last.format("HH:mm"),
+        status: true
+      };
+      item.check = checkIfTimeout.bind(item)();
+      list.push(item);
+    }
+  }
+
+  /**
+   * 渲染全部列表
+   */
+  function renderAll() {
+    const $missionList = $(".time");
+    const liTlp = function (time, active) {
+      return `<li>
+                <span>${time}</span>
+                <div class="time-status">
+                    ${active ? '☑️' : '🚫'}
+                </div>
+              </li>`
+    };
+    // 渲染
+    let allEleStr = "";
+    list.forEach((item, index) => {
+      allEleStr += liTlp(item.time, item.status);
+    });
+    $missionList.append(allEleStr);
+  }
+
+  /**
+   * 设置一个任务的状态
+   * @param index
+   * @param status
+   */
+  function setMission(index, status) {
+    const $status = $(".time li").eq(index).find(".time-status");
+    $status.text(status ? '☑️' : '🚫');
+  }
+
+  let cnt = 0; // 时间加速计数
+  const RATE = 3; // 一次即时采样多少次
+  const baseTime = function () {
+    cnt++;
+    return dayjs().add(parseInt(cnt / LIST_LEN / RATE), "minute");
+  };
+
+  function checkIfTimeout() {
+    const TIME_GAP = 1200; // 大于 1s，避免检测到两次同一时刻
+    // 时间是"进入"的
+    const curDate = dayjs().format("YYYY-MM-DD");
+    const missionTime = dayjs(`${curDate} ${this.time}`);
+    const missionPattern = [missionTime.subtract(1, "minute").format("HH:mm"), this.time]; // ["12:12","12:13"]
+
+    let lastTime = "";
+    let curTime = "";
+    return setInterval(() => {
+      if (this.status) {        // 时间进入任务，置灰
+        lastTime = curTime;
+        curTime = baseTime().format("HH:mm");
+        if (this.index === LIST_LEN - 1) console.log(curTime, missionPattern); // 打印一次足够
+        if (lastTime === missionPattern[0] && curTime === missionPattern[1]) {
+          this.status = false;
+          clearInterval(this.check);
+          setMission(this.index, this.status);
+        }
+      }
+    }, TIME_GAP / 60); // 加速后，需要加多采样率
+  }
+
+  // 执行
+  createMissionList();
+  renderAll();
+  console.log(list);
+</script>
+</body>
+</html>
