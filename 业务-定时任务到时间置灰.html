@@ -30,7 +30,7 @@
         time: last.format("HH:mm"),
         status: true
       };
-      item.check = checkIfTimeout.bind(item)();
+      item.check = checkIfTimeout.call(item);
       list.push(item);
     }
   }
