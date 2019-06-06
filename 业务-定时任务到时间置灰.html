@@ -17,17 +17,16 @@
 <script src="https://unpkg.com/dayjs"></script>
 <script>
   const list = [];
-  const LIST_LEN = 800;
+  const LIST_LEN = 400;
+  const SET_TIME = "2019-5-27 20:00:00";
 
   function createMissionList() {
-    const cur = dayjs();
+    const cur = dayjs(SET_TIME);
     // 生成任务
-    let last = cur;
     for (let i = 0; i < LIST_LEN; i++) {
-      last = last.add(1, "minute");
       const item = {
         index: i,
-        time: last.format("HH:mm"),
+        time: cur.add(i, "minute").format("HH:mm"),
         status: true
       };
       item.check = checkIfTimeout.call(item);
@@ -67,10 +66,10 @@
   }
 
   let cnt = 0; // 时间加速计数
-  const RATE = 3; // 一次即时采样多少次
+  const RATE = 2; // 一次即时采样多少次
   const baseTime = function () {
     cnt++;
-    return dayjs().add(parseInt(cnt / LIST_LEN / RATE), "minute");
+    return dayjs(SET_TIME).add(parseInt(cnt / LIST_LEN / RATE), "minute");
   };
 
   function checkIfTimeout() {
