@@ -1,0 +1,52 @@
+<!DOCTYPE>
+<html>
+<head>
+  <title>设计模式-发布订阅</title>
+  <style>
+    .button {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      background: #ccc;
+      overflow: hidden;
+    }
+
+    .button-child {
+      margin: 100px;
+      width: 100px;
+      height: 100px;
+      background: #000;
+      color: #fff;
+      font-size: 40px;
+    }
+
+    .button-child-2 {
+      left: 0;
+      top: 0;
+      position: absolute;
+      background: #678923;
+      transform: translate(50px, 50px);
+    }
+  </style>
+  <div class="button" onclick="onParentClick()">
+    <div class="button-child" onclick="onChildClick(1)">
+      点我
+    </div>
+    <div class="button-child button-child-2" onclick="onChildClick(2)">
+      点我
+    </div>
+  </div>
+</head>
+<body>
+😂
+<script>
+  function onParentClick() {
+    console.log('父点击')
+  }
+
+  function onChildClick(num) {
+    console.log('子点击', num)
+  }
+</script>
+</body>
+</html>
