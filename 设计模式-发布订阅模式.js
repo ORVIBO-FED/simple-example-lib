@@ -6,7 +6,7 @@
 
 // 对象：公共部分(单例模式)
 const channelCore = {
-  list: [], // 函数列表
+  fnList: [], // 函数列表
   /**
    * 发送消息
    * @param data
@@ -15,24 +15,29 @@ const channelCore = {
     const evt = {
       data
     }
-    channelCore.list.forEach(item => {
-      if (item.name === this.name) {
+    channelCore.fnList.forEach(item => {
+      if (
+        item.channelName === this.channelName && // 同一频道
+        item.channelId !== this.channelId // 自己不接收
+      ) {
         item.fn(evt)
       }
     })
   }
 }
 
-function PublishChannel(name) {
-  this.name = name
+function PublishChannel(channelName) {
+  this.channelName = channelName
+  this.channelId = `${parseInt(Math.random() * Math.pow(10, 8))}`
 }
 
 PublishChannel.prototype.postMessage = channelCore.postMessage
 // 保存订阅函数
 PublishChannel.prototype.onmessage = function (fn) {
-  channelCore.list.push({
-    name: this.name,
-    fn
+  channelCore.fnList.push({
+    channelName: this.channelName,
+    channelId: this.channelId,
+    fn: fn.bind(this)
   })
 }
 
@@ -45,11 +50,16 @@ const publisher2_2 = new PublishChannel('channel-2')
 const subscirbe2 = new PublishChannel('channel-2')
 
 // 开始通信1
+subscirbe1_1.foo = '用于鉴定接收作用域正确'
 subscirbe1_1.onmessage(function (evt) {
+  console.log('作用域是否正确:', this.foo !== undefined)
   console.log('订阅者1_1收到啦', evt)
 })
 subscirbe1_1.onmessage(function (evt) {
   console.log('订阅者1_2收到啦', evt)
+})
+publisher1.onmessage(function (evt) {
+  console.log('发布者1不应该收到自己发出的', evt)
 })
 publisher1.postMessage('hello')
 
