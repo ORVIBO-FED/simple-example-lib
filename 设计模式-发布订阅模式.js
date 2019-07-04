@@ -4,41 +4,47 @@
 * date:2019-6-24
 * ----------------------------------------------------------------------------------*/
 
-// 对象：公共部分(单例模式)
-const channelCore = {
-  fnList: [], // 函数列表
-  /**
-   * 发送消息
-   * @param data
-   */
+/**
+ * 构造函数：频道对象
+ * @param name
+ * @constructor
+ */
+class PublishChannel {
+  static fnList = []
+  
+  constructor(name) {
+    this.name = name
+    this.id = `${parseInt(Math.random() * Math.pow(10, 8))}`
+  }
+
+  // 发送消息
   postMessage(data) {
     const evt = {
       data
     }
-    channelCore.fnList.forEach(item => {
+    PublishChannel.fnList.forEach(item => {
       if (
-        item.channelName === this.channelName && // 同一频道
-        item.channelId !== this.channelId // 自己不接收
+        item.name === this.name && // 同一频道
+        item.id !== this.id // 自己不接收
       ) {
         item.fn(evt)
       }
     })
   }
-}
 
-function PublishChannel(channelName) {
-  this.channelName = channelName
-  this.channelId = `${parseInt(Math.random() * Math.pow(10, 8))}`
-}
+  // 订阅函数
+  onmessage(fn) {
+    PublishChannel.fnList.push({
+      name: this.name,
+      id: this.id,
+      fn: fn.bind(this)
+    })
+  }
 
-PublishChannel.prototype.postMessage = channelCore.postMessage
-// 保存订阅函数
-PublishChannel.prototype.onmessage = function (fn) {
-  channelCore.fnList.push({
-    channelName: this.channelName,
-    channelId: this.channelId,
-    fn: fn.bind(this)
-  })
+  // 清除fnList相应id的对象，避免占用内存过多
+  clear() {
+    PublishChannel.fnList = PublishChannel.fnList.filter(item => item.id !== this.id)
+  }
 }
 
 // 频道的发布者和订阅者们
