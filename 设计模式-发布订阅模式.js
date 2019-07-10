@@ -11,7 +11,7 @@
  */
 class PublishChannel {
   static fnList = []
-  
+
   constructor(name) {
     this.name = name
     this.id = `${parseInt(Math.random() * Math.pow(10, 8))}`
@@ -37,7 +37,7 @@ class PublishChannel {
     PublishChannel.fnList.push({
       name: this.name,
       id: this.id,
-      fn: fn.bind(this)
+      fn: fn.bind(this) // 指向频道，而不是push进去的对象
     })
   }
 
@@ -58,6 +58,7 @@ const subscirbe2 = new PublishChannel('channel-2')
 // 开始通信1
 subscirbe1_1.foo = '用于鉴定接收作用域正确'
 subscirbe1_1.onmessage(function (evt) {
+  console.log(this)
   console.log('作用域是否正确:', this.foo !== undefined)
   console.log('订阅者1_1收到啦', evt)
 })
