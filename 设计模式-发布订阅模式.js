@@ -37,7 +37,8 @@ class PublishChannel {
     PublishChannel.fnList.push({
       name: this.name,
       id: this.id,
-      fn: fn.bind(this) // 指向频道，而不是push进去的对象
+      fn
+      //fn: fn.bind(this) // 回调指向频道实例，而不是push进去的对象
     })
   }
 
