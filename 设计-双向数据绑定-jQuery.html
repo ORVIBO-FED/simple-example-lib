@@ -1,72 +1,77 @@
 <!DOCTYPE html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>双向绑定</title>
-    <style>
-        .content {
-            width: 400px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-    </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>双向绑定</title>
+  <style>
+    .content {
+      width: 400px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
 </head>
 
 <body>
 <div class="content">
-    <input id="view-1" value="" placeholder="输入" type="text"/>
-    <div id="model-1">数据</div>
-    <input id="view-2" value="" placeholder="输入"/>
-    <div id="model-2">数据</div>
-    <button id="btn">改变输入框2</button>
+  <input id="view-1" value="" placeholder="输入" type="text" />
+  <div id="model-1">数据</div>
+  <input id="view-2" value="" placeholder="输入" />
+  <div id="model-2">数据</div>
+  <button id="btn">改变数据2</button>
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
   $(function () {
+    /*--------------------------------- 声明 ---------------------------------*/
     /**
      * 绑定器
      * @param id
      * @constructor
      */
-    function DataBinder(id) {
-      console.log(id);
-      let pubSub = jQuery({}); // jQ作为发布
-      const view = `#view-${id}`;
-      const model = `#model-${id}`;
-      const message = `${id}:change`;
+    function DataBinder (id) {
+      console.log(id)
+      let pubSub = jQuery({}) // jQ作为发布
+      const view = `#view-${id}`
+      const model = `#model-${id}`
+      const message = `${id}:change`
 
+      // 事件
       $(view).on('input', e => {
-        const val = e.target.value;
-        pubSub.trigger(message, [model, val]);
-      });
+        const val = e.target.value
+        pubSub.trigger(message, [model, val])
+      })
 
+      // 设置值
       pubSub.bind(message, (e, model, val) => {
-        $(model).html(val);
-      });
+        $(model).html(val)
+      })
 
-      this.trigger = (val) => pubSub.trigger(message, [model, val]);
+      // 方法：主动触发
+      this.trigger = (val) => pubSub.trigger(message, [model, val])
     }
 
-    // 方法
-    const bind1 = new DataBinder(1);
-
     // 数据对象
-    function User(id) {
-      const binder = new DataBinder(id);
-      this.attributes = {};
+    function Vm (id) {
+      const binder = new DataBinder(id)
+      this.attributes = {}
       this.set = (attr_name, val) => {
-        this.attributes[attr_name] = val;
-        binder.trigger(val);
+        this.attributes[attr_name] = val
+        binder.trigger(val)
       }
     }
 
-    const user = new User(2);
+    /*--------------------------------- 运行 ---------------------------------*/
+    // 简单绑定
+    const bind1 = new DataBinder(1)
 
+    // 通过 set 方法实现更新
+    const vm = new Vm(2)
     $('#btn').click(e => {
-      user.set("name", "马兆铿");
-    });
-  });
+      vm.set('name', '马兆铿')
+    })
+  })
 </script>
 </body>
 </html>
