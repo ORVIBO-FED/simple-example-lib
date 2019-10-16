@@ -1,0 +1,35 @@
+<!DOCTYPE>
+<html>
+<head>
+  <title>设计模式-发布订阅</title>
+</head>
+<body>
+<div id="parent">
+  <div id="child">123</div>
+</div>
+<script>
+  console.log('DOM 监听')
+  var observer = new MutationObserver(function (mutations, observer) {
+/*    mutations.forEach(function (mutation) {
+      console.log('DOM 变化', mutation)
+    })*/
+  })
+
+  const ele = document.getElementById('parent')
+  console.log(ele)
+  const option = { childList: true, attributes: true }
+  observer.observe(ele, option)
+
+  var child = document.getElementById('child')
+  child.parentNode.removeChild(child)
+
+  var child2 = document.createElement('div')
+  child2.innerText = '456'
+  ele.appendChild(child2)
+
+  const records = observer.takeRecords()
+  console.log('获取记录', records)
+
+</script>
+</body>
+</html>
