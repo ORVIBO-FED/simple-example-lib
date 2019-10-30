@@ -1,76 +1,39 @@
 /*----------------------------------------------------------------------------------
-* about:Promise链生成。形态与 axios 一致。
-* date:2018-12-25
+* about:Promise 链的特点：1.下一个环节必须返回 Promise 对象 2.需要有错误处理函数，否则 reject 后会报错
+* author:马兆铿（13790371603 810768333@qq.com）
+* date:2019-10-30
 * ----------------------------------------------------------------------------------*/
 
-function Fetch( config ) {
-  console.log("开始发送，配置：", config);
-  return new Promise(( resolve, reject ) => {
-    if ( config ) {
-      resolve("请求发送成功")
-    } else {
-      reject("请求发送失败");
-    }
-  });
-}
+let promise = Promise.resolve()
+const chain = []
 
-// 模拟普通请求
-function fetch( str ) {
-  return new Fetch(str);
-}
-
-// axios请求链
-const intercepter = {
-  request: {
-    success( config ) {
-      config && console.log("请求拦截，配置：", config);
-      if ( config.trigErr === "requestIntercepter" ) {
-        console.log("请求拦截报错");
-        return Promise.reject(config);
+function send (x) {
+  console.log('send', x)
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (x === 2) {
+        return reject('--中断-- ' + x)
       }
-      return config; // 作为下一个 Promise 的参数
-    },
-    fail( config ) {
-      console.log("请求拦截到错误");
-      return Promise.reject(config);
-    }
-  },
-  responce: {
-    success( res ) {
-      console.log("响应拦截，结果：", res);
-      return res;
-    },
-    fail( err ) {
-      console.log("响应拦截到错误");
-      return Promise.reject(err);
-    }
-  }
-};
-
-function chainFetch( config ) {
-  console.log("/*----------------------------------*/");
-  config && console.log(config.name);
-  let chain = Promise.resolve(config); // 参数传递
-  // 增加拦截
-  chain = chain
-    .then(intercepter.request.success, intercepter.request.fail) // 请求拦截
-    .then(fetch, undefined) // 请求
-    .then(intercepter.responce.success, intercepter.responce.fail) // 响应拦截
-  return chain;
+      console.log('完成', x)
+      resolve({ errcode: 0 })
+    }, 300)
+  })
 }
 
-/*chainFetch({ name: "请求链1：全部resolve" })
-  .then(res => {
-    console.log("请求链全部完成，结果：", res);
-  })
-  .catch(err => {
-    console.log("请求链出现错误，错误：", err);
-  });*/
+for (let i = 0; i < 4; i++) {
+  const queryFn = () => {
+    return send(i)
+  }
 
-chainFetch({ name: "请求链2：请求拦截中错误", trigErr: "requestIntercepter" })
-  .then(res => {
-    console.log("请求链全部完成，结果：", res);
-  })
-  .catch(err => {
-    console.log("请求链出现错误，错误：", err);
-  });
+  chain.push(queryFn)
+}
+
+while (chain.length) {
+  promise = promise
+    .then(
+      chain.shift(),
+      (err) => {
+        console.log(err)
+      }
+    )
+}
