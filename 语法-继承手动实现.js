@@ -23,11 +23,12 @@ function S (x) {
 }
 
 S.prototype = Object.create(M1.prototype)
-Object.assign(S.prototype, M2.prototype)
+Object.assign(S.prototype, M2.prototype) // prototype 上的方法继承，但是原型不变
 S.prototype.constructor = S
 
 const s = new S('cat')
 console.log(s)
+console.log(s instanceof M1, s instanceof M2)
 console.log(S.prototype.constructor)
 s.yell1()
 s.yell2()
