@@ -4,36 +4,70 @@
 * date:2019-10-30
 * ----------------------------------------------------------------------------------*/
 
-let promise = Promise.resolve()
-const chain = []
+/* ----------------------------------------- 定义 ----------------------------------------- */
+/**
+ * Promise链式调用
+ * @param arr
+ * @returns {TypeError|*}
+ */
+function Promise_chain (arr) {
+  if (!(typeof arr === 'object' && arr instanceof Array)) {
+    return TypeError('has to be array of Promise')
+  }
+  let promise = Promise.resolve()
+  while (arr.length) {
+    promise = promise.then(arr.shift())
+  }
+  return promise
+}
 
-function send (x) {
-  console.log('send', x)
+/* ----------------------------------------- 测试 ----------------------------------------- */
+
+// 天气请求
+function queryWeatherOfCity (city) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (x === 2) {
-        return reject('--中断-- ' + x)
-      }
-      console.log('完成', x)
-      resolve({ errcode: 0 })
-    }, 300)
+    console.log(`${city}多云`)
+    resolve()
   })
 }
 
-for (let i = 0; i < 4; i++) {
-  const queryFn = () => {
-    return send(i)
-  }
-
-  chain.push(queryFn)
+// 定时器
+function timerPromise (x) {
+  return new Promise((resolve, reject) => {
+    if (!Number.isInteger(+x)) {
+      reject('not number')
+    }
+    setTimeout(() => {
+      console.log('time up')
+      resolve()
+    }, x)
+  })
 }
 
-while (chain.length) {
-  promise = promise
-    .then(
-      chain.shift(),
-      (err) => {
-        console.log(err)
-      }
-    )
-}
+const chain1 = [
+  queryWeatherOfCity.bind(null, '深圳'),
+  timerPromise.bind(null, 500),
+  queryWeatherOfCity.bind(null, '广宁'),
+  timerPromise.bind(null, 500),
+  queryWeatherOfCity.bind(null, '东莞'),
+]
+
+const chain2 = [
+  queryWeatherOfCity.bind(null, '深圳'),
+  timerPromise.bind(null, 500),
+  queryWeatherOfCity.bind(null, '广宁'),
+  timerPromise.bind(null, undefined),
+  queryWeatherOfCity.bind(null, '东莞'),
+]
+
+// 全部完成
+Promise_chain(chain1).then(() => {
+  console.log('/--- chain1完成 ---/')
+})
+
+// 中途报错
+Promise_chain(chain2).catch(err => {
+  console.log(err)
+  console.log('/--- chain2中断 ---/')
+})
+
